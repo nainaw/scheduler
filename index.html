@@ -357,7 +357,8 @@
         <div>
           <label for="monthFilter">Month</label>
           <select id="monthFilter">
-            <option value="ALL">December &amp; January</option>
+            <option value="ALL">All Listed Months (Nov–Jan)</option>
+            <option value="11">November Only</option>
             <option value="12">December Only</option>
             <option value="01">January Only</option>
           </select>
@@ -378,7 +379,8 @@
         <div>
           <label for="viewMode">Display Style</label>
           <select id="viewMode">
-            <option value="split-matrix">Two-Month Tables</option>
+            <option value="split-matrix">Multi-Month Tables</option>
+            <option value="one-month">One-Month Tables</option>
             <option value="cards">Sabbath Cards</option>
           </select>
         </div>
@@ -421,6 +423,62 @@
     const DEFAULT_CSV_URL = "./schedule.csv";
 
     const SAMPLE_CSV = `Date,Task,AssignedMember
+07/11/2026,CUFN,R. Herinirina
+07/11/2026,CUM,R. André
+07/11/2026,CUTA,Ramaroson Liva
+07/11/2026,CUTL,R. Florette
+07/11/2026,CUVK,Tahiana
+07/11/2026,CUVP,R. Fitia
+07/11/2026,FTH,Razafinirinarisoa
+07/11/2026,FTV,R. Vololona
+07/11/2026,HARF,R. Patern
+07/11/2026,HARM,M. Tsoa
+07/11/2026,SS10,E. Falisoa
+07/11/2026,SS5,TANORA ZOKINY
+07/11/2026,SSM,TANORA ZOKINY
+07/11/2026,SST,TANORA ZOKINY
+14/11/2026,CUFN,R. Fabrice
+14/11/2026,CUM,Pulchérie
+14/11/2026,CUTA,R. Andoniaina
+14/11/2026,CUTL,R. André
+14/11/2026,CUVK,Minosoa
+14/11/2026,CUVP,Rafidimanana
+14/11/2026,FTH,R. Armand
+14/11/2026,FTV,Kevin
+14/11/2026,HARF,R. Fenosoa
+14/11/2026,HARM,R. Fihobiana
+14/11/2026,SS10,A. Rado
+14/11/2026,SS5,ZATOVO
+14/11/2026,SSM,ZATOVO
+14/11/2026,SST,ZATOVO
+21/11/2026,CUFN,R. Tsilavina
+21/11/2026,CUM,R. Fitia
+21/11/2026,CUTA,M. Tsoa
+21/11/2026,CUTL,Mario
+21/11/2026,CUVK,Ramaroson Liva
+21/11/2026,CUVP,A. Rado
+21/11/2026,FTH,Aldo
+21/11/2026,FTV,Xénophan
+21/11/2026,HARF,Ramaroson Liva
+21/11/2026,HARM,Razafinirinarisoa
+21/11/2026,SS10,R. Florette
+21/11/2026,SS5,LEHIBE I
+21/11/2026,SSM,LEHIBE I
+21/11/2026,SST,LEHIBE I
+28/11/2026,CUFN,Pulchérie
+28/11/2026,CUM,R. Armand
+28/11/2026,CUTA,R. Fenosoa
+28/11/2026,CUTL,E. Falisoa
+28/11/2026,CUVK,Sariaka
+28/11/2026,CUVP,R. Patern
+28/11/2026,FTH,R. Saholimalala
+28/11/2026,FTV,R. Jeannine
+28/11/2026,HARF,T. Harisoa
+28/11/2026,HARM,Minosoa
+28/11/2026,SS10,R. André
+28/11/2026,SS5,LEHIBE II
+28/11/2026,SSM,LEHIBE II
+28/11/2026,SST,LEHIBE II
 05/12/2026,CUFN,Filamatra
 05/12/2026,CUM,M. Tsoa
 05/12/2026,CUTA,R. Florette
@@ -730,10 +788,13 @@
         return;
       }
 
-      const monthKeys = Array.from(new Set(filtered.map((r) => r._month))).sort((a, b) => {
-        const order = ["12", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"];
+      let monthKeys = Array.from(new Set(filtered.map((r) => r._month))).sort((a, b) => {
+        const order = ["11", "12", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10"];
         return order.indexOf(a) - order.indexOf(b);
       });
+      if (mode === "one-month" && monthVal === "ALL" && monthKeys.length > 0) {
+        monthKeys = [monthKeys[0]];
+      }
 
       if (mode === "cards") {
         container.innerHTML = monthKeys
