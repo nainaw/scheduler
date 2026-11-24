@@ -343,7 +343,7 @@
   <div class="container">
     <header>
       <div>
-        <h1>Sabbath Service Schedule — December &amp; January</h1>
+        <h1>Sabbath Service Schedule</h1>
         <p>Filter by month, Sabbath date, or your name to check your responsibilities quickly.</p>
       </div>
       <div class="header-actions no-print">
@@ -671,6 +671,51 @@
       return rows;
     }
 
+
+    function populateMonthDropdown() {
+      const select = document.getElementById("monthFilter");
+      const prev = select.value;
+
+      const uniqueMonths = Array.from(
+        new Map(
+          allRows
+            .filter((r) => r._month && r._dt)
+            .map((r) => {
+              const y = r._dt.getFullYear();
+              const m = String(r._dt.getMonth() + 1).padStart(2, "0");
+              const sortKey = y * 100 + (r._dt.getMonth() + 1);
+              return [`${y}-${m}`, { month: m, year: y, sortKey }];
+            })
+        ).values()
+      ).sort((a, b) => a.sortKey - b.sortKey);
+
+      const rangeLabels = uniqueMonths.map((item) => {
+        const shortM = (MONTH_NAMES[item.month] || item.month).slice(0, 3);
+        return `${shortM} ${item.year}`;
+      });
+      const allLabel =
+        rangeLabels.length > 1
+          ? `All Listed Months (${rangeLabels[0]}–${rangeLabels[rangeLabels.length - 1]})`
+          : rangeLabels.length === 1
+          ? `All Listed Months (${rangeLabels[0]})`
+          : "All Listed Months";
+
+      select.innerHTML = `<option value="ALL">${allLabel}</option>`;
+      for (const item of uniqueMonths) {
+        const opt = document.createElement("option");
+        opt.value = item.month;
+        const mName = MONTH_NAMES[item.month] || item.month;
+        opt.textContent = `${mName} ${item.year} Only`;
+        select.appendChild(opt);
+      }
+
+      if ([...select.options].some((o) => o.value === prev)) {
+        select.value = prev;
+      } else {
+        select.value = "ALL";
+      }
+    }
+
     function populateSabbathDropdown() {
       const select = document.getElementById("sabbathFilter");
       const monthVal = document.getElementById("monthFilter").value;
@@ -870,6 +915,7 @@
           return;
         }
         allRows = parsed;
+        populateMonthDropdown();
         populateSabbathDropdown();
         renderSchedule();
         document.getElementById("statusBar").textContent = `Loaded ${parsed.length} rows from ${file.name}.`;
@@ -912,6 +958,7 @@
         const parsed = parseCSV(csvText);
         if (!parsed.length) throw new Error("No valid rows found.");
         allRows = parsed;
+        populateMonthDropdown();
         populateSabbathDropdown();
         renderSchedule();
         statusEl.textContent = `Synced ${parsed.length} rows (${new Date().toLocaleTimeString()}).`;
@@ -929,6 +976,7 @@
     document.getElementById("viewMode").addEventListener("change", renderSchedule);
 
     allRows = parseCSV(SAMPLE_CSV);
+    populateMonthDropdown();
     populateSabbathDropdown();
     renderSchedule();
 
