@@ -396,25 +396,8 @@
       <div id="scheduleContainer"></div>
       <div class="footer-meta">
         <span id="statusBar">Sample schedule loaded (edit DEFAULT_CSV_URL or open Admin Source to bind live CSV).</span>
-        <button class="link-btn no-print" onclick="toggleAdminPanel()">Admin Source</button>
       </div>
 
-      <div id="adminPanel" class="admin-panel no-print">
-        <label for="csvUrlInput">Admin Only — Published CSV URL (Google Sheet / Direct CSV)</label>
-        <div class="toolbar" style="grid-template-columns: 3fr auto; margin-bottom: 10px;">
-          <input id="csvUrlInput" type="url" placeholder="https://.../pub?output=csv" />
-          <button class="btn btn-primary" onclick="loadFromUrl()">Sync Now</button>
-        </div>
-        <div style="margin-bottom: 10px;">
-          <label for="localCsvFile">Or Choose Local CSV File</label>
-          <input id="localCsvFile" type="file" accept=".csv,text/csv" style="font-size:0.82rem;" onchange="loadLocalCsvFile(event)" />
-        </div>
-        <label for="pasteCsvInput">Or Paste Real CSV Rows (Date,Task,AssignedMember)</label>
-        <textarea id="pasteCsvInput" rows="4" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:monospace;" placeholder="05/12/2026,SSM,TANORA ZOKINY&#10;02/01/2027,CUTL,R. Misedra"></textarea>
-        <div style="margin-top:6px;">
-          <button class="btn btn-primary" onclick="applyPastedCsv()">Apply Pasted CSV</button>
-        </div>
-      </div>
     </section>
   </div>
 
@@ -946,7 +929,7 @@
     }
 
     async function loadFromUrl(customUrl) {
-      const url = (customUrl || document.getElementById("csvUrlInput").value || "").trim();
+      const url = (customUrl || DEFAULT_CSV_URL || "").trim();
       if (!url) return;
       const statusEl = document.getElementById("statusBar");
       statusEl.textContent = "Syncing schedule...";
@@ -983,7 +966,6 @@
     const params = new URLSearchParams(window.location.search);
     const activeUrl = params.get("csv") || DEFAULT_CSV_URL;
     if (activeUrl) {
-      document.getElementById("csvUrlInput").value = activeUrl;
       loadFromUrl(activeUrl);
       setInterval(() => loadFromUrl(activeUrl), 5 * 60 * 1000);
     }
