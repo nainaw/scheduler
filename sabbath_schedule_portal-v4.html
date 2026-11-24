@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sabbath Service Schedule — December &amp; January</title>
+  <style>
+    :root {
+      --bg: #f3f6fa;
+      --surface: #ffffff;
+      --surface-alt: #eef3f8;
+      --ink: #17222d;
+      --muted: #526375;
+      --primary: #1b4973;
+      --primary-dark: #123352;
+      --accent: #1f6f78;
+      --accent-soft: #e6f4f5;
+      --border: #d5e0ea;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(23, 34, 45, 0.05);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.35;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 12px 16px 28px;
+    }
+
+    header {
+      background: linear-gradient(125deg, var(--primary-dark) 0%, var(--primary) 60%, var(--accent) 100%);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+    }
+
+    header p {
+      margin: 2px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 0.82rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 0.88rem;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-light {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.32);
+    }
+
+    .btn-light:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .personal-box {
+      background: var(--accent-soft);
+      border: 1px solid #a7d7dc;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .personal-box.visible { display: block; }
+
+    .personal-box h3 {
+      margin: 0 0 6px;
+      font-size: 0.92rem;
+      color: #134b52;
+    }
+
+    .duty-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+      gap: 6px;
+    }
+
+    .duty-item {
+      background: #fff;
+      border: 1px solid #c5e3e7;
+      border-radius: 6px;
+      padding: 6px 9px;
+      font-size: 0.83rem;
+    }
+
+    .duty-date {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 0.78rem;
+    }
+
+    .month-section {
+      margin-bottom: 14px;
+    }
+
+    .month-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .month-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 0 6px;
+      padding-bottom: 4px;
+      border-bottom: 1.5px solid var(--border);
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .month-pill {
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--surface-alt);
+      color: var(--muted);
+      padding: 1px 8px;
+      border-radius: 999px;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    th {
+      background: var(--primary);
+      color: #fff;
+      text-align: left;
+      padding: 6px 9px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    th.task-col {
+      background: var(--primary-dark);
+      width: 84px;
+    }
+
+    td {
+      padding: 5px 9px;
+      border-top: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    td.task-cell {
+      font-weight: 700;
+      background: var(--surface-alt);
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    tbody tr:hover td:not(.task-cell) {
+      background: #f4f8fc;
+    }
+
+    tbody tr:nth-child(even) td:not(.task-cell) {
+      background: #fafcfe;
+    }
+
+    td.highlight-match {
+      background: #fff3cd !important;
+      font-weight: 700;
+      color: #664d03;
+      outline: 2px solid #e0a800;
+      outline-offset: -2px;
+    }
+
+    .sabbath-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 10px;
+    }
+
+    .sab-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    .sab-card h4 {
+      margin: 0 0 6px;
+      color: var(--primary);
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+
+    .sab-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.81rem;
+    }
+
+    .sab-card li {
+      padding: 3px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px dashed #edf2f7;
+    }
+
+    .sab-card li:last-child { border-bottom: none; }
+
+    .badge-task {
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .footer-meta {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    .admin-panel {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .admin-panel.open { display: block; }
+
+    .link-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .no-print { display: none !important; }
+      .card { box-shadow: none; border: 1px solid #ccc; padding: 8px; }
+      .container { padding: 0; max-width: 100%; }
+      th { background: #1b4973 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Sabbath Service Schedule — December &amp; January</h1>
+        <p>Filter by month, Sabbath date, or your name to check your responsibilities quickly.</p>
+      </div>
+      <div class="header-actions no-print">
+        <button class="btn btn-light" onclick="resetFilters()">Reset Filters</button>
+        <button class="btn btn-light" onclick="window.print()">Print / Save PDF</button>
+      </div>
+    </header>
+
+    <section class="card no-print">
+      <div class="toolbar">
+        <div>
+          <label for="monthFilter">Month</label>
+          <select id="monthFilter">
+            <option value="ALL">December &amp; January</option>
+            <option value="12">December Only</option>
+            <option value="01">January Only</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="sabbathFilter">Sabbath Date</label>
+          <select id="sabbathFilter">
+            <option value="ALL">All Sabbaths</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="memberSearch">Find My Responsibilities</label>
+          <input id="memberSearch" type="text" placeholder="Type name (e.g., Fenosoa, Misedra)..." />
+        </div>
+
+        <div>
+          <label for="viewMode">Display Style</label>
+          <select id="viewMode">
+            <option value="split-matrix">Two-Month Tables</option>
+            <option value="cards">Sabbath Cards</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="personalBox" class="personal-box">
+        <h3 id="personalTitle">Your Responsibilities</h3>
+        <div id="personalDuties" class="duty-list"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div id="scheduleContainer"></div>
+      <div class="footer-meta">
+        <span id="statusBar">Sample schedule loaded (edit DEFAULT_CSV_URL or open Admin Source to bind live CSV).</span>
+        <button class="link-btn no-print" onclick="toggleAdminPanel()">Admin Source</button>
+      </div>
+
+      <div id="adminPanel" class="admin-panel no-print">
+        <label for="csvUrlInput">Admin Only — Published CSV URL (Google Sheet / Direct CSV)</label>
+        <div class="toolbar" style="grid-template-columns: 3fr auto; margin-bottom: 10px;">
+          <input id="csvUrlInput" type="url" placeholder="https://.../pub?output=csv" />
+          <button class="btn btn-primary" onclick="loadFromUrl()">Sync Now</button>
+        </div>
+        <div style="margin-bottom: 10px;">
+          <label for="localCsvFile">Or Choose Local CSV File</label>
+          <input id="localCsvFile" type="file" accept=".csv,text/csv" style="font-size:0.82rem;" onchange="loadLocalCsvFile(event)" />
+        </div>
+        <label for="pasteCsvInput">Or Paste Real CSV Rows (Date,Task,AssignedMember)</label>
+        <textarea id="pasteCsvInput" rows="4" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:monospace;" placeholder="05/12/2026,SSM,TANORA ZOKINY&#10;02/01/2027,CUTL,R. Misedra"></textarea>
+        <div style="margin-top:6px;">
+          <button class="btn btn-primary" onclick="applyPastedCsv()">Apply Pasted CSV</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Set your published Google Sheet / Drive CSV URL here so members automatically see updates
+    const DEFAULT_CSV_URL = "";
+
+    const SAMPLE_CSV = `Date,Task,AssignedMember
+05/12/2026,SSM,TANORA ZOKINY
+05/12/2026,SST,TANORA ZOKINY
+05/12/2026,SS5,TANORA ZOKINY
+05/12/2026,SS10,R. Fihobiana
+05/12/2026,FTV,Henitsoa
+05/12/2026,FTH,H. Tiavina
+05/12/2026,CUM,M. Tsoa
+05/12/2026,CUVK,Lili
+05/12/2026,CUVP,Razafinirinarisoa
+05/12/2026,CUFN,Filamatra
+05/12/2026,CUTA,R. André
+05/12/2026,CUTL,R. Fitia
+05/12/2026,TASK13,R. Armand
+05/12/2026,TASK14,R. Lalaina
+12/12/2026,SSM,ZATOVO
+12/12/2026,SST,ZATOVO
+12/12/2026,SS5,ZATOVO
+12/12/2026,SS10,R. Patern
+12/12/2026,FTV,R. Fabrice
+12/12/2026,FTH,R. Romuald
+12/12/2026,CUM,Mario
+12/12/2026,CUVK,Xénophan
+12/12/2026,CUVP,R. Armand
+12/12/2026,CUFN,R. Lalaina
+12/12/2026,CUTA,R. Fenosoa
+12/12/2026,CUTL,R. Misedra
+12/12/2026,TASK13,Sariaka
+12/12/2026,TASK14,Todisoa
+19/12/2026,SSM,LEHIBE I
+19/12/2026,SST,LEHIBE I
+19/12/2026,SS5,LEHIBE I
+19/12/2026,SS10,E. Falisoa
+19/12/2026,FTV,Lili
+19/12/2026,FTH,Sariaka
+19/12/2026,CUM,R. Andoniaina
+19/12/2026,CUVK,Henitsoa
+19/12/2026,CUVP,R. Florette
+19/12/2026,CUFN,Razafinirinarisoa
+19/12/2026,CUTA,R. Fitia
+19/12/2026,CUTL,R. Fenosoa
+19/12/2026,TASK13,R. Ernestine
+19/12/2026,TASK14,A. Rado
+26/12/2026,SSM,LEHIBE II
+26/12/2026,SST,LEHIBE II
+26/12/2026,SS5,LEHIBE II
+26/12/2026,SS10,R. Fitia
+26/12/2026,FTV,Koloina
+26/12/2026,FTH,R. Ernestine
+26/12/2026,CUM,A. Rado
+26/12/2026,CUVK,R. Lalaina
+26/12/2026,CUVP,R. André
+26/12/2026,CUFN,Todisoa
+26/12/2026,CUTA,R. Misedra
+26/12/2026,CUTL,R. Fitia
+26/12/2026,TASK13,R. Florette
+26/12/2026,TASK14,E. Falisoa
+02/01/2027,SSM,TANORA ZOKINY
+02/01/2027,SST,TANORA ZOKINY
+02/01/2027,SS5,TANORA ZOKINY
+02/01/2027,CUTL,R. Misedra
+09/01/2027,SSM,ZATOVO
+09/01/2027,SST,ZATOVO
+09/01/2027,SS5,ZATOVO
+09/01/2027,CUTL,R. Fitia
+16/01/2027,SSM,LEHIBE I
+16/01/2027,SST,LEHIBE I
+16/01/2027,SS5,LEHIBE I
+16/01/2027,CUFN,R. Misedra
+16/01/2027,CUTL,R. Misedra
+23/01/2027,SSM,LEHIBE II
+23/01/2027,SST,LEHIBE II
+23/01/2027,SS5,LEHIBE II
+23/01/2027,CUTL,R. Fenosoa`;
+
+    const MONTH_NAMES = {
+      "12": "December",
+      "01": "January",
+      "02": "February",
+      "03": "March",
+      "04": "April",
+      "05": "May",
+      "06": "June",
+      "07": "July",
+      "08": "August",
+      "09": "September",
+      "10": "October",
+      "11": "November",
+    };
+
+    let allRows = [];
+
+    function toggleAdminPanel() {
+      document.getElementById("adminPanel").classList.toggle("open");
+    }
+
+    function parseDateDDMMYYYY(str) {
+      const parts = (str || "").trim().split("/");
+      if (parts.length !== 3) return null;
+      const d = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10);
+      const y = parseInt(parts[2], 10);
+      if (!d || !m || !y) return null;
+      return new Date(y, m - 1, d);
+    }
+
+    function parseCSV(text) {
+      const lines = text
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter((l) => l.length > 0);
+      if (lines.length < 2) return [];
+      const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+      const idxDate = headers.findIndex((h) => h.toLowerCase() === "date");
+      const idxTask = headers.findIndex((h) => h.toLowerCase() === "task");
+      const idxMember = headers.findIndex(
+        (h) => h.toLowerCase() === "assignedmember" || h.toLowerCase() === "member"
+      );
+
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+        const dateStr = cols[idxDate >= 0 ? idxDate : 0] || "";
+        const taskStr = cols[idxTask >= 0 ? idxTask : 1] || "";
+        const memberStr = cols[idxMember >= 0 ? idxMember : 2] || "";
+        const dt = parseDateDDMMYYYY(dateStr);
+        if (dateStr && taskStr) {
+          rows.push({
+            Date: dateStr,
+            Task: taskStr,
+            AssignedMember: memberStr,
+            _dt: dt,
+            _month: dt ? String(dt.getMonth() + 1).padStart(2, "0") : "",
+            _year: dt ? dt.getFullYear() : "",
+          });
+        }
+      }
+      return rows;
+    }
+
+    function populateSabbathDropdown() {
+      const select = document.getElementById("sabbathFilter");
+      const monthVal = document.getElementById("monthFilter").value;
+      const prev = select.value;
+
+      const uniqueDates = Array.from(
+        new Map(
+          allRows
+            .filter((r) => monthVal === "ALL" || r._month === monthVal)
+            .map((r) => [r.Date, r._dt])
+        ).entries()
+      ).sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0));
+
+      select.innerHTML = `<option value="ALL">All Sabbaths</option>`;
+      for (const [dStr] of uniqueDates) {
+        const opt = document.createElement("option");
+        opt.value = dStr;
+        opt.textContent = dStr;
+        select.appendChild(opt);
+      }
+      if ([...select.options].some((o) => o.value === prev)) {
+        select.value = prev;
+      }
+    }
+
+    function renderPersonalBox(filteredRows, query) {
+      const box = document.getElementById("personalBox");
+      const title = document.getElementById("personalTitle");
+      const list = document.getElementById("personalDuties");
+      const q = query.trim().toLowerCase();
+
+      if (!q) {
+        box.classList.remove("visible");
+        return;
+      }
+
+      const matches = filteredRows.filter((r) =>
+        r.AssignedMember.toLowerCase().includes(q)
+      );
+      box.classList.add("visible");
+      title.textContent = `Responsibilities matching "${query.trim()}" (${matches.length})`;
+
+      if (matches.length === 0) {
+        list.innerHTML = `<div class="duty-item">No assignments found for this filter.</div>`;
+        return;
+      }
+
+      list.innerHTML = matches
+        .map(
+          (m) => `
+          <div class="duty-item">
+            <div class="duty-date">${m.Date}</div>
+            <div><strong>${m.Task}</strong> &rarr; ${m.AssignedMember}</div>
+          </div>`
+        )
+        .join("");
+    }
+
+    function buildMonthMatrix(monthRows, memberQuery) {
+      const dates = Array.from(
+        new Map(monthRows.map((r) => [r.Date, r._dt])).entries()
+      )
+        .sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0))
+        .map(([d]) => d);
+
+      const tasks = Array.from(new Set(allRows.map((r) => r.Task)));
+      const lookup = {};
+      for (const r of monthRows) {
+        lookup[`${r.Task}|||${r.Date}`] = r.AssignedMember;
+      }
+
+      const thCols = dates.map((d) => `<th>${d}</th>`).join("");
+      const bodyRows = tasks
+        .map((t) => {
+          const tds = dates
+            .map((d) => {
+              const val = lookup[`${t}|||${d}`] || "";
+              const isHit = memberQuery && val.toLowerCase().includes(memberQuery);
+              return `<td class="${isHit ? "highlight-match" : ""}">${val}</td>`;
+            })
+            .join("");
+          return `<tr><td class="task-cell">${t}</td>${tds}</tr>`;
+        })
+        .join("");
+
+      return `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th class="task-col">Task</th>${thCols}</tr>
+            </thead>
+            <tbody>${bodyRows}</tbody>
+          </table>
+        </div>`;
+    }
+
+    function renderSchedule() {
+      const monthVal = document.getElementById("monthFilter").value;
+      const sabVal = document.getElementById("sabbathFilter").value;
+      const memberQuery = document.getElementById("memberSearch").value.trim().toLowerCase();
+      const mode = document.getElementById("viewMode").value;
+
+      const filtered = allRows.filter((r) => {
+        if (monthVal !== "ALL" && r._month !== monthVal) return false;
+        if (sabVal !== "ALL" && r.Date !== sabVal) return false;
+        return true;
+      });
+
+      renderPersonalBox(filtered, memberQuery);
+
+      const container = document.getElementById("scheduleContainer");
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p style="color: var(--muted);">No schedule records match the selected filters.</p>`;
+        return;
+      }
+
+      const monthKeys = Array.from(new Set(filtered.map((r) => r._month))).sort((a, b) => {
+        const order = ["12", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"];
+        return order.indexOf(a) - order.indexOf(b);
+      });
+
+      if (mode === "cards") {
+        container.innerHTML = monthKeys
+          .map((mKey) => {
+            const mRows = filtered.filter((r) => r._month === mKey);
+            const mLabel = MONTH_NAMES[mKey] || mKey;
+            const year = mRows[0] && mRows[0]._year ? ` ${mRows[0]._year}` : "";
+            const dates = Array.from(new Map(mRows.map((r) => [r.Date, r._dt])).entries())
+              .sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0))
+              .map(([d]) => d);
+            const tasks = Array.from(new Set(allRows.map((r) => r.Task)));
+            const lookup = {};
+            for (const r of mRows) lookup[`${r.Task}|||${r.Date}`] = r.AssignedMember;
+
+            const cardsHtml = dates
+              .map((d) => {
+                const items = tasks
+                  .map((t) => {
+                    const assignee = lookup[`${t}|||${d}`] || "—";
+                    const isHit = memberQuery && assignee.toLowerCase().includes(memberQuery);
+                    return `<li style="${isHit ? "background:#fff3cd;font-weight:700;border-radius:5px;padding:3px 6px;" : ""}">
+                      <span class="badge-task">${t}</span>
+                      <span>${assignee}</span>
+                    </li>`;
+                  })
+                  .join("");
+                return `<div class="sab-card"><h4>${d}</h4><ul>${items}</ul></div>`;
+              })
+              .join("");
+
+            return `
+              <div class="month-section">
+                <div class="month-heading">
+                  <span>${mLabel}${year}</span>
+                  <span class="month-pill">${dates.length} Sabbaths</span>
+                </div>
+                <div class="sabbath-cards">${cardsHtml}</div>
+              </div>`;
+          })
+          .join("");
+        return;
+      }
+
+      container.innerHTML = monthKeys
+        .map((mKey) => {
+          const mRows = filtered.filter((r) => r._month === mKey);
+          const mLabel = MONTH_NAMES[mKey] || mKey;
+          const year = mRows[0] && mRows[0]._year ? ` ${mRows[0]._year}` : "";
+          const sabCount = new Set(mRows.map((r) => r.Date)).size;
+          return `
+            <div class="month-section">
+              <div class="month-heading">
+                <span>${mLabel}${year}</span>
+                <span class="month-pill">${sabCount} Sabbaths</span>
+              </div>
+              ${buildMonthMatrix(mRows, memberQuery)}
+            </div>`;
+        })
+        .join("");
+    }
+
+
+
+    function loadLocalCsvFile(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = (e.target && e.target.result) || "";
+        const parsed = parseCSV(text);
+        if (!parsed.length) {
+          document.getElementById("statusBar").textContent = "Could not parse selected CSV file.";
+          return;
+        }
+        allRows = parsed;
+        populateSabbathDropdown();
+        renderSchedule();
+        document.getElementById("statusBar").textContent = `Loaded ${parsed.length} rows from ${file.name}.`;
+      };
+      reader.readAsText(file);
+    }
+
+    function applyPastedCsv() {
+      const txt = (document.getElementById("pasteCsvInput").value || "").trim();
+      if (!txt) return;
+      const parsed = parseCSV(txt);
+      if (!parsed.length) {
+        document.getElementById("statusBar").textContent = "Could not parse pasted CSV (expected Date,Task,AssignedMember).";
+        return;
+      }
+      allRows = parsed;
+      populateSabbathDropdown();
+      renderSchedule();
+      document.getElementById("statusBar").textContent = `Loaded ${parsed.length} rows from pasted CSV.`;
+    }
+
+    function resetFilters() {
+      document.getElementById("monthFilter").value = "ALL";
+      populateSabbathDropdown();
+      document.getElementById("sabbathFilter").value = "ALL";
+      document.getElementById("memberSearch").value = "";
+      renderSchedule();
+    }
+
+    async function loadFromUrl(customUrl) {
+      const url = (customUrl || document.getElementById("csvUrlInput").value || "").trim();
+      if (!url) return;
+      const statusEl = document.getElementById("statusBar");
+      statusEl.textContent = "Syncing schedule...";
+      try {
+        const bustUrl = url + (url.includes("?") ? "&" : "?") + "_t=" + Date.now();
+        const res = await fetch(bustUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const csvText = await res.text();
+        const parsed = parseCSV(csvText);
+        if (!parsed.length) throw new Error("No valid rows found.");
+        allRows = parsed;
+        populateSabbathDropdown();
+        renderSchedule();
+        statusEl.textContent = `Synced ${parsed.length} rows (${new Date().toLocaleTimeString()}).`;
+      } catch (err) {
+        statusEl.textContent = `Sync notice: ${err.message}`;
+      }
+    }
+
+    document.getElementById("monthFilter").addEventListener("change", () => {
+      populateSabbathDropdown();
+      renderSchedule();
+    });
+    document.getElementById("sabbathFilter").addEventListener("change", renderSchedule);
+    document.getElementById("memberSearch").addEventListener("input", renderSchedule);
+    document.getElementById("viewMode").addEventListener("change", renderSchedule);
+
+    allRows = parseCSV(SAMPLE_CSV);
+    populateSabbathDropdown();
+    renderSchedule();
+
+    const params = new URLSearchParams(window.location.search);
+    const activeUrl = params.get("csv") || DEFAULT_CSV_URL;
+    if (activeUrl) {
+      document.getElementById("csvUrlInput").value = activeUrl;
+      loadFromUrl(activeUrl);
+      setInterval(() => loadFromUrl(activeUrl), 5 * 60 * 1000);
+    }
+  </script>
+</body>
+</html>
