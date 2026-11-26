@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sabbath Service Schedule — December &amp; January</title>
+  <title>Sabbath Service Schedule</title>
   <style>
     :root {
       --bg: #f3f6fa;
@@ -204,6 +204,7 @@
     .table-wrap {
       width: 100%;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       border: 1px solid var(--border);
       border-radius: 8px;
     }
@@ -226,6 +227,9 @@
     th.task-col {
       background: var(--primary-dark);
       width: 84px;
+      position: sticky;
+      left: 0;
+      z-index: 2;
     }
 
     td {
@@ -239,6 +243,10 @@
       background: var(--surface-alt);
       color: var(--primary);
       white-space: nowrap;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      border-right: 1px solid var(--border);
     }
 
     tbody tr:hover td:not(.task-cell) {
@@ -330,6 +338,104 @@
       cursor: pointer;
     }
 
+    @media (max-width: 640px) {
+      .container {
+        padding: 8px 10px 22px;
+      }
+
+      header {
+        padding: 12px 14px;
+      }
+
+      header h1 {
+        font-size: 1.08rem;
+      }
+
+      header p {
+        font-size: 0.78rem;
+      }
+
+      .header-actions {
+        width: 100%;
+      }
+
+      .header-actions .btn {
+        flex: 1 1 auto;
+        text-align: center;
+      }
+
+      .card {
+        padding: 10px 12px;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      input[type="text"],
+      input[type="url"],
+      select {
+        font-size: 16px;
+        padding: 8px 10px;
+      }
+
+      .duty-list {
+        grid-template-columns: 1fr;
+      }
+
+      .sabbath-cards {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 0.79rem;
+      }
+
+      th, td {
+        padding: 6px 8px;
+      }
+    }
+
+
+    .chunk-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .task-label-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: help;
+    }
+
+    .task-desc-sub {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--muted);
+      white-space: normal;
+      max-width: 240px;
+      line-height: 1.25;
+      margin-top: 2px;
+    }
+
+    .task-legend {
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .task-legend strong {
+      color: var(--ink);
+    }
+
     @media print {
       body { background: #fff; }
       .no-print { display: none !important; }
@@ -379,9 +485,20 @@
         <div>
           <label for="viewMode">Display Style</label>
           <select id="viewMode">
+            <option value="continuous-4">Continuous (4 Sabbaths / Row)</option>
             <option value="split-matrix">Multi-Month Tables</option>
             <option value="one-month">One-Month Tables</option>
+            <option value="all-dates-table">All Dates Table (Oldest &rarr; Newest)</option>
             <option value="cards">Sabbath Cards</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="taskDisplayMode">Task Names</label>
+          <select id="taskDisplayMode">
+            <option value="code-tooltip">Short Code + Hover Tooltip</option>
+            <option value="code-and-desc">Code + Description</option>
+            <option value="desc-only">Full Description</option>
           </select>
         </div>
       </div>
@@ -402,8 +519,25 @@
   </div>
 
   <script>
-    // Set your published Google Sheet / Drive CSV URL here so members automatically see updates
+    // Set your published CSV URLs here so members automatically see updates
     const DEFAULT_CSV_URL = "./schedule.csv";
+    const DEFAULT_TASKS_CSV_URL = "./Tasks.csv";
+
+    const DEFAULT_TASKS_CSV = `id,name,description
+1,SSM,Sabbath School Monitor / Leader
+2,SST,Sabbath School Secretary / Treasurer
+3,SS5,Sabbath School 5-Minute Mission / Lesson
+4,SS10,Sabbath School 10-Minute Feature / Review
+5,FTV,Divine Service Scripture / Welcome
+6,FTH,Divine Service Prayer / Intercession
+7,CUM,Afternoon / Youth Ministry Leader
+8,CUVK,Youth / Children Bible Study
+9,CUVP,Afternoon Praise & Worship
+10,CUFN,Afternoon Closing / Fellowship
+11,CUTA,Afternoon Bible Quiz / Activity
+12,CUTL,Afternoon Ministry / CUTL Duty
+13,HARM,Harmony / Choir / Music Ministry
+14,HARF,Harmony / Special Music / Instrument`;
 
     const SAMPLE_CSV = `Date,Task,AssignedMember
 07/11/2026,CUFN,R. Herinirina
@@ -605,6 +739,7 @@
     };
 
     let allRows = [];
+    let taskDescriptions = {};
 
     function toggleAdminPanel() {
       document.getElementById("adminPanel").classList.toggle("open");
@@ -780,7 +915,7 @@
               return `<td class="${isHit ? "highlight-match" : ""}">${val}</td>`;
             })
             .join("");
-          return `<tr><td class="task-cell">${t}</td>${tds}</tr>`;
+          return `<tr><td class="task-cell">${renderTaskCellContent(t)}</td>${tds}</tr>`;
         })
         .join("");
 
@@ -793,6 +928,127 @@
             <tbody>${bodyRows}</tbody>
           </table>
         </div>`;
+    }
+
+
+    function parseTasksCSV(text) {
+      const map = {};
+      const lines = (text || "")
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter((l) => l.length > 0);
+      if (lines.length < 2) return map;
+      const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+      const idxName = headers.findIndex((h) => h === "name" || h === "task" || h === "code");
+      const idxDesc = headers.findIndex((h) => h === "description" || h === "desc" || h === "label");
+      for (let i = 1; i < lines.length; i++) {
+        // Handle optional commas inside quoted description
+        const raw = lines[i];
+        let cols = [];
+        if (raw.includes('"')) {
+          const matches = raw.match(/(".*?"|[^",]+)(?=,|$)/g) || [];
+          cols = matches.map((c) => c.trim().replace(/^"|"$/g, ""));
+        } else {
+          cols = raw.split(",").map((c) => c.trim());
+        }
+        const tCode = (cols[idxName >= 0 ? idxName : 1] || "").trim();
+        const tDesc = (cols[idxDesc >= 0 ? idxDesc : 2] || "").trim();
+        if (tCode) {
+          map[tCode] = tDesc || tCode;
+        }
+      }
+      return map;
+    }
+
+    function getTaskTitleAttr(taskCode) {
+      const desc = taskDescriptions[taskCode];
+      return desc && desc !== taskCode ? `${taskCode}: ${desc}` : taskCode;
+    }
+
+    function renderTaskCellContent(taskCode) {
+      const modeEl = document.getElementById("taskDisplayMode");
+      const labelMode = modeEl ? modeEl.value : "code-tooltip";
+      const desc = taskDescriptions[taskCode] || "";
+      const titleAttr = getTaskTitleAttr(taskCode).replace(/"/g, "&quot;");
+
+      if (labelMode === "desc-only" && desc) {
+        return `<span class="task-label-wrap" title="${titleAttr}">${desc}</span>`;
+      }
+      if (labelMode === "code-and-desc" && desc && desc !== taskCode) {
+        return `<span class="task-label-wrap" title="${titleAttr}"><span>${taskCode}</span></span><span class="task-desc-sub">${desc}</span>`;
+      }
+      return `<span class="task-label-wrap" title="${titleAttr}">${taskCode}</span>`;
+    }
+
+    function buildContinuousFourColView(rows, memberQuery) {
+      const sortedDates = Array.from(
+        new Map(rows.map((r) => [r.Date, r._dt])).entries()
+      )
+        .sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0))
+        .map(([d]) => d);
+
+      const tasks = Array.from(new Set(allRows.map((r) => r.Task)));
+      const lookup = {};
+      for (const r of rows) {
+        lookup[`${r.Task}|||${r.Date}`] = r.AssignedMember;
+      }
+
+      const isMobile = window.innerWidth <= 640;
+      const chunkSize = isMobile ? 1 : 4;
+      const chunks = [];
+      for (let i = 0; i < sortedDates.length; i += chunkSize) {
+        chunks.push(sortedDates.slice(i, i + chunkSize));
+      }
+
+      const chunksHtml = chunks
+        .map((dateGroup, idx) => {
+          const thCols = dateGroup.map((d) => `<th>${d}</th>`).join("");
+          const bodyRows = tasks
+            .map((t) => {
+              const tds = dateGroup
+                .map((d) => {
+                  const val = lookup[`${t}|||${d}`] || "";
+                  const isHit = memberQuery && val.toLowerCase().includes(memberQuery);
+                  return `<td class="${isHit ? "highlight-match" : ""}">${val}</td>`;
+                })
+                .join("");
+              return `<tr><td class="task-cell">${renderTaskCellContent(t)}</td>${tds}</tr>`;
+            })
+            .join("");
+
+          const spanLabel =
+            dateGroup.length > 1
+              ? `${dateGroup[0]} &rarr; ${dateGroup[dateGroup.length - 1]}`
+              : dateGroup[0];
+
+          return `
+            <div class="month-section">
+              <div class="month-heading">
+                <span>Part ${idx + 1}: ${spanLabel}</span>
+                <span class="month-pill">${dateGroup.length} Sabbath${dateGroup.length > 1 ? "es" : ""}</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th class="task-col">Task</th>${thCols}</tr>
+                  </thead>
+                  <tbody>${bodyRows}</tbody>
+                </table>
+              </div>
+            </div>`;
+        })
+        .join("");
+
+      const legendItems = tasks
+        .filter((t) => taskDescriptions[t] && taskDescriptions[t] !== t)
+        .map((t) => `<strong>${t}</strong>: ${taskDescriptions[t]}`)
+        .join(" &bull; ");
+
+      const legendHtml = legendItems
+        ? `<div class="task-legend"><strong>Task Guide:</strong> ${legendItems}</div>`
+        : "";
+
+      return `<div class="chunk-grid">${chunksHtml}</div>${legendHtml}`;
     }
 
     function renderSchedule() {
@@ -816,10 +1072,44 @@
         return;
       }
 
-      let monthKeys = Array.from(new Set(filtered.map((r) => r._month))).sort((a, b) => {
-        const order = ["11", "12", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10"];
-        return order.indexOf(a) - order.indexOf(b);
-      });
+      if (mode === "continuous-4") {
+        container.innerHTML = buildContinuousFourColView(filtered, memberQuery);
+        return;
+      }
+
+      if (mode === "all-dates-table") {
+        const allDatesCount = new Set(filtered.map((r) => r.Date)).size;
+        const sortedDates = Array.from(
+          new Map(filtered.map((r) => [r.Date, r._dt])).entries()
+        )
+          .sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0))
+          .map(([d]) => d);
+        const rangeText =
+          sortedDates.length > 1
+            ? `${sortedDates[0]} &rarr; ${sortedDates[sortedDates.length - 1]}`
+            : sortedDates[0] || "";
+
+        container.innerHTML = `
+          <div class="month-section">
+            <div class="month-heading">
+              <span>All Listed Schedules (${rangeText})</span>
+              <span class="month-pill">${allDatesCount} Sabbaths</span>
+            </div>
+            ${buildMonthMatrix(filtered, memberQuery)}
+          </div>`;
+        return;
+      }
+
+      const monthSortMap = new Map();
+      for (const r of filtered) {
+        if (r._month && !monthSortMap.has(r._month)) {
+          const sk = r._dt ? r._dt.getFullYear() * 100 + (r._dt.getMonth() + 1) : 999999;
+          monthSortMap.set(r._month, sk);
+        }
+      }
+      let monthKeys = Array.from(monthSortMap.keys()).sort(
+        (a, b) => monthSortMap.get(a) - monthSortMap.get(b)
+      );
       if (mode === "one-month" && monthVal === "ALL" && monthKeys.length > 0) {
         monthKeys = [monthKeys[0]];
       }
@@ -844,7 +1134,7 @@
                     const assignee = lookup[`${t}|||${d}`] || "—";
                     const isHit = memberQuery && assignee.toLowerCase().includes(memberQuery);
                     return `<li style="${isHit ? "background:#fff3cd;font-weight:700;border-radius:5px;padding:3px 6px;" : ""}">
-                      <span class="badge-task">${t}</span>
+                      <span class="badge-task" title="${getTaskTitleAttr(t).replace(/"/g, '&quot;')}">${t}</span>
                       <span>${assignee}</span>
                     </li>`;
                   })
@@ -958,6 +1248,32 @@
     document.getElementById("memberSearch").addEventListener("input", renderSchedule);
     document.getElementById("viewMode").addEventListener("change", renderSchedule);
 
+    async function loadTasksFromUrl(tasksUrl) {
+      const url = (tasksUrl || DEFAULT_TASKS_CSV_URL || "").trim();
+      if (!url) return;
+      try {
+        const bustUrl = url + (url.includes("?") ? "&" : "?") + "_t=" + Date.now();
+        const res = await fetch(bustUrl);
+        if (!res.ok) return;
+        const txt = await res.text();
+        const parsedMap = parseTasksCSV(txt);
+        if (Object.keys(parsedMap).length > 0) {
+          taskDescriptions = { ...taskDescriptions, ...parsedMap };
+          renderSchedule();
+        }
+      } catch (_) {
+        // Keep defaults if Tasks.csv is not hosted at that path
+      }
+    }
+
+    document.getElementById("taskDisplayMode").addEventListener("change", renderSchedule);
+    window.addEventListener("resize", () => {
+      if (document.getElementById("viewMode").value === "continuous-4") {
+        renderSchedule();
+      }
+    });
+
+    taskDescriptions = parseTasksCSV(DEFAULT_TASKS_CSV);
     allRows = parseCSV(SAMPLE_CSV);
     populateMonthDropdown();
     populateSabbathDropdown();
@@ -965,6 +1281,10 @@
 
     const params = new URLSearchParams(window.location.search);
     const activeUrl = params.get("csv") || DEFAULT_CSV_URL;
+    const activeTasksUrl = params.get("tasks") || DEFAULT_TASKS_CSV_URL;
+    if (activeTasksUrl) {
+      loadTasksFromUrl(activeTasksUrl);
+    }
     if (activeUrl) {
       loadFromUrl(activeUrl);
       setInterval(() => loadFromUrl(activeUrl), 5 * 60 * 1000);
