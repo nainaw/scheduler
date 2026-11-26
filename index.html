@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Anjara Fanompoana Isan-tSabata</title>
+  <title>Fandaharam-potoana Sabata</title>
   <style>
     :root {
       --bg: #f3f6fa;
@@ -449,7 +449,7 @@
   <div class="container">
     <header>
       <div>
-        <h1>Anjara Fanompoana Isan-tSabata</h1>
+        <h1>Fandaharam-potoana Sabata</h1>
         <p>Sivana araka ny volana, daty Sabata, na anarana mba hahitana haingana ny andraikitrao.</p>
       </div>
       <div class="header-actions no-print">
@@ -741,6 +741,7 @@
 
     let allRows = [];
     let taskDescriptions = {};
+    let taskOrder = [];
 
     function toggleAdminPanel() {
       document.getElementById("adminPanel").classList.toggle("open");
@@ -871,9 +872,17 @@
         return;
       }
 
-      const matches = filteredRows.filter((r) =>
-        r.AssignedMember.toLowerCase().includes(q)
-      );
+      const rankIndex = new Map(taskOrder.map((code, idx) => [code, idx]));
+      const matches = filteredRows
+        .filter((r) => r.AssignedMember.toLowerCase().includes(q))
+        .sort((a, b) => {
+          const da = a._dt ? a._dt.getTime() : 0;
+          const db = b._dt ? b._dt.getTime() : 0;
+          if (da !== db) return da - db;
+          const ra = rankIndex.has(a.Task) ? rankIndex.get(a.Task) : 999999;
+          const rb = rankIndex.has(b.Task) ? rankIndex.get(b.Task) : 999999;
+          return ra - rb;
+        });
       box.classList.add("visible");
       title.textContent = `Andraikitra mifanaraka amin'ny "${query.trim()}" (${matches.length})`;
 
@@ -900,7 +909,7 @@
         .sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0))
         .map(([d]) => d);
 
-      const tasks = Array.from(new Set(allRows.map((r) => r.Task)));
+      const tasks = getOrderedTasks(allRows);
       const lookup = {};
       for (const r of monthRows) {
         lookup[`${r.Task}|||${r.Date}`] = r.AssignedMember;
@@ -934,16 +943,17 @@
 
     function parseTasksCSV(text) {
       const map = {};
+      const entries = [];
       const lines = (text || "")
         .split(/\r?\n/)
         .map((l) => l.trim())
         .filter((l) => l.length > 0);
-      if (lines.length < 2) return map;
+      if (lines.length < 2) return { map, order: [] };
       const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+      const idxRank = headers.findIndex((h) => h === "id" || h === "rank" || h === "order" || h === "no");
       const idxName = headers.findIndex((h) => h === "name" || h === "task" || h === "code");
       const idxDesc = headers.findIndex((h) => h === "description" || h === "desc" || h === "label");
       for (let i = 1; i < lines.length; i++) {
-        // Handle optional commas inside quoted description
         const raw = lines[i];
         let cols = [];
         if (raw.includes('"')) {
@@ -954,11 +964,27 @@
         }
         const tCode = (cols[idxName >= 0 ? idxName : 1] || "").trim();
         const tDesc = (cols[idxDesc >= 0 ? idxDesc : 2] || "").trim();
+        const rawRank = idxRank >= 0 ? parseInt(cols[idxRank], 10) : i;
+        const rankVal = Number.isFinite(rawRank) ? rawRank : i;
         if (tCode) {
           map[tCode] = tDesc || tCode;
+          entries.push({ code: tCode, rank: rankVal, seq: i });
         }
       }
-      return map;
+      entries.sort((a, b) => (a.rank !== b.rank ? a.rank - b.rank : a.seq - b.seq));
+      const order = Array.from(new Set(entries.map((e) => e.code)));
+      return { map, order };
+    }
+
+    function getOrderedTasks(rows) {
+      const present = Array.from(new Set((rows || allRows).map((r) => r.Task)));
+      if (!taskOrder || taskOrder.length === 0) return present;
+      const rankIndex = new Map(taskOrder.map((code, idx) => [code, idx]));
+      return present.sort((a, b) => {
+        const ra = rankIndex.has(a) ? rankIndex.get(a) : 999999;
+        const rb = rankIndex.has(b) ? rankIndex.get(b) : 999999;
+        return ra - rb;
+      });
     }
 
     function getTaskTitleAttr(taskCode) {
@@ -988,7 +1014,7 @@
         .sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0))
         .map(([d]) => d);
 
-      const tasks = Array.from(new Set(allRows.map((r) => r.Task)));
+      const tasks = getOrderedTasks(allRows);
       const lookup = {};
       for (const r of rows) {
         lookup[`${r.Task}|||${r.Date}`] = r.AssignedMember;
@@ -1064,7 +1090,7 @@
         .sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0))
         .map(([d]) => d);
 
-      const tasks = Array.from(new Set(allRows.map((r) => r.Task)));
+      const tasks = getOrderedTasks(allRows);
       const lookup = {};
       for (const r of rows) {
         lookup[`${r.Task}|||${r.Date}`] = r.AssignedMember;
@@ -1187,7 +1213,7 @@
             const dates = Array.from(new Map(mRows.map((r) => [r.Date, r._dt])).entries())
               .sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0))
               .map(([d]) => d);
-            const tasks = Array.from(new Set(allRows.map((r) => r.Task)));
+            const tasks = getOrderedTasks(allRows);
             const lookup = {};
             for (const r of mRows) lookup[`${r.Task}|||${r.Date}`] = r.AssignedMember;
 
@@ -1322,9 +1348,12 @@
         const res = await fetch(bustUrl);
         if (!res.ok) return;
         const txt = await res.text();
-        const parsedMap = parseTasksCSV(txt);
-        if (Object.keys(parsedMap).length > 0) {
-          taskDescriptions = { ...taskDescriptions, ...parsedMap };
+        const parsedTasks = parseTasksCSV(txt);
+        if (Object.keys(parsedTasks.map).length > 0) {
+          taskDescriptions = { ...taskDescriptions, ...parsedTasks.map };
+          if (parsedTasks.order.length > 0) {
+            taskOrder = parsedTasks.order;
+          }
           renderSchedule();
         }
       } catch (_) {
@@ -1339,7 +1368,9 @@
       }
     });
 
-    taskDescriptions = parseTasksCSV(DEFAULT_TASKS_CSV);
+    const initTasks = parseTasksCSV(DEFAULT_TASKS_CSV);
+    taskDescriptions = initTasks.map;
+    taskOrder = initTasks.order;
     const mobileUser = isMobileDevice();
     document.getElementById("taskDisplayMode").value = "desc-only";
     document.getElementById("viewMode").value = mobileUser ? "one-col" : "continuous-4";
