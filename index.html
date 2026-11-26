@@ -464,9 +464,9 @@
           <label for="monthFilter">Volana</label>
           <select id="monthFilter">
             <option value="ALL">Volana Rehetra (Nov–Jan)</option>
-            <option value="11">November Only</option>
-            <option value="12">December Only</option>
-            <option value="01">January Only</option>
+            <option value="11">Novambra ihany</option>
+            <option value="12">Desambra ihany</option>
+            <option value="01">Janoary ihany</option>
           </select>
         </div>
 
@@ -1237,7 +1237,7 @@
               <div class="month-section">
                 <div class="month-heading">
                   <span>${mLabel}${year}</span>
-                  <span class="month-pill">${dates.length} Sabbaths</span>
+                  <span class="month-pill">${dates.length} Sabata</span>
                 </div>
                 <div class="sabbath-cards">${cardsHtml}</div>
               </div>`;
@@ -1274,14 +1274,14 @@
         const text = (e.target && e.target.result) || "";
         const parsed = parseCSV(text);
         if (!parsed.length) {
-          document.getElementById("statusBar").textContent = "Could not parse selected CSV file.";
+          document.getElementById("statusBar").textContent = "Tsy afaka novakiana ny rakitra CSV voafidy.";
           return;
         }
         allRows = parsed;
         populateMonthDropdown();
         populateSabbathDropdown();
         renderSchedule();
-        document.getElementById("statusBar").textContent = `Loaded ${parsed.length} rows from ${file.name}.`;
+        document.getElementById("statusBar").textContent = `Vaky ny andalana ${parsed.length} avy amin'ny ${file.name}.`;
       };
       reader.readAsText(file);
     }
@@ -1291,13 +1291,13 @@
       if (!txt) return;
       const parsed = parseCSV(txt);
       if (!parsed.length) {
-        document.getElementById("statusBar").textContent = "Could not parse pasted CSV (expected Date,Task,AssignedMember).";
+        document.getElementById("statusBar").textContent = "Tsy afaka novakiana ny CSV napetaka (andrasana: Date,Task,AssignedMember).";
         return;
       }
       allRows = parsed;
       populateSabbathDropdown();
       renderSchedule();
-      document.getElementById("statusBar").textContent = `Loaded ${parsed.length} rows from pasted CSV.`;
+      document.getElementById("statusBar").textContent = `Vaky ny andalana ${parsed.length} avy amin'ny CSV napetaka.`;
     }
 
     function resetFilters() {
@@ -1321,7 +1321,7 @@
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const csvText = await res.text();
         const parsed = parseCSV(csvText);
-        if (!parsed.length) throw new Error("No valid rows found.");
+        if (!parsed.length) throw new Error("Tsy misy andalana manan-kery hita.");
         allRows = parsed;
         populateMonthDropdown();
         populateSabbathDropdown();
