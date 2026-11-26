@@ -486,6 +486,7 @@
           <label for="viewMode">Fomba Fiseho</label>
           <select id="viewMode">
             <option value="continuous-4">Mitohy (Sabata 4 / Laharana)</option>
+            <option value="one-col">Daty 1 / Tsanganana</option>
             <option value="split-matrix">Tabilao Isam-bolana</option>
             <option value="one-month">Tabilao Volana Iray</option>
             <option value="all-dates-table">Tabilao Daty Rehetra (Taloha &rarr; Vaovao)</option>
@@ -1051,6 +1052,64 @@
       return `<div class="chunk-grid">${chunksHtml}</div>${legendHtml}`;
     }
 
+
+    function isMobileDevice() {
+      return window.innerWidth <= 640 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+    }
+
+    function buildContinuousOneColView(rows, memberQuery) {
+      const sortedDates = Array.from(
+        new Map(rows.map((r) => [r.Date, r._dt])).entries()
+      )
+        .sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0))
+        .map(([d]) => d);
+
+      const tasks = Array.from(new Set(allRows.map((r) => r.Task)));
+      const lookup = {};
+      for (const r of rows) {
+        lookup[`${r.Task}|||${r.Date}`] = r.AssignedMember;
+      }
+
+      const chunksHtml = sortedDates
+        .map((dStr, idx) => {
+          const bodyRows = tasks
+            .map((t) => {
+              const val = lookup[`${t}|||${dStr}`] || "";
+              const isHit = memberQuery && val.toLowerCase().includes(memberQuery);
+              return `<tr><td class="task-cell">${renderTaskCellContent(t)}</td><td class="${isHit ? "highlight-match" : ""}">${val}</td></tr>`;
+            })
+            .join("");
+
+          return `
+            <div class="month-section">
+              <div class="month-heading">
+                <span>${idx + 1}. ${dStr}</span>
+                <span class="month-pill">1 Sabata</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th class="task-col">Asa</th><th>${dStr}</th></tr>
+                  </thead>
+                  <tbody>${bodyRows}</tbody>
+                </table>
+              </div>
+            </div>`;
+        })
+        .join("");
+
+      const legendItems = tasks
+        .filter((t) => taskDescriptions[t] && taskDescriptions[t] !== t)
+        .map((t) => `<strong>${t}</strong>: ${taskDescriptions[t]}`)
+        .join(" &bull; ");
+
+      const legendHtml = legendItems
+        ? `<div class="task-legend"><strong>Fanazavana ny Asa:</strong> ${legendItems}</div>`
+        : "";
+
+      return `<div class="chunk-grid">${chunksHtml}</div>${legendHtml}`;
+    }
+
     function renderSchedule() {
       const monthVal = document.getElementById("monthFilter").value;
       const sabVal = document.getElementById("sabbathFilter").value;
@@ -1069,6 +1128,11 @@
 
       if (filtered.length === 0) {
         container.innerHTML = `<p style="color: var(--muted);">Tsy misy fandaharam-potoana mifanaraka amin'ny sivana voafidy.</p>`;
+        return;
+      }
+
+      if (mode === "one-col") {
+        container.innerHTML = buildContinuousOneColView(filtered, memberQuery);
         return;
       }
 
@@ -1215,6 +1279,8 @@
       populateSabbathDropdown();
       document.getElementById("sabbathFilter").value = "ALL";
       document.getElementById("memberSearch").value = "";
+      document.getElementById("taskDisplayMode").value = "desc-only";
+      document.getElementById("viewMode").value = isMobileDevice() ? "one-col" : "continuous-4";
       renderSchedule();
     }
 
@@ -1274,6 +1340,9 @@
     });
 
     taskDescriptions = parseTasksCSV(DEFAULT_TASKS_CSV);
+    const mobileUser = isMobileDevice();
+    document.getElementById("taskDisplayMode").value = "desc-only";
+    document.getElementById("viewMode").value = mobileUser ? "one-col" : "continuous-4";
     allRows = parseCSV(SAMPLE_CSV);
     populateMonthDropdown();
     populateSabbathDropdown();
