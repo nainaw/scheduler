@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mg">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sabbath Service Schedule</title>
+  <title>Fandaharam-potoana Sabata</title>
   <style>
     :root {
       --bg: #f3f6fa;
@@ -449,21 +449,21 @@
   <div class="container">
     <header>
       <div>
-        <h1>Sabbath Service Schedule</h1>
-        <p>Filter by month, Sabbath date, or your name to check your responsibilities quickly.</p>
+        <h1>Fandaharam-potoana Sabata</h1>
+        <p>Sivana araka ny volana, daty Sabata, na anarana mba hahitana haingana ny andraikitrao.</p>
       </div>
       <div class="header-actions no-print">
-        <button class="btn btn-light" onclick="resetFilters()">Reset Filters</button>
-        <button class="btn btn-light" onclick="window.print()">Print / Save PDF</button>
+        <button class="btn btn-light" onclick="resetFilters()">Averina ny Sivana</button>
+        <button class="btn btn-light" onclick="window.print()">Atonta / Tahirizo PDF</button>
       </div>
     </header>
 
     <section class="card no-print">
       <div class="toolbar">
         <div>
-          <label for="monthFilter">Month</label>
+          <label for="monthFilter">Volana</label>
           <select id="monthFilter">
-            <option value="ALL">All Listed Months (Nov–Jan)</option>
+            <option value="ALL">Volana Rehetra (Nov–Jan)</option>
             <option value="11">November Only</option>
             <option value="12">December Only</option>
             <option value="01">January Only</option>
@@ -471,40 +471,40 @@
         </div>
 
         <div>
-          <label for="sabbathFilter">Sabbath Date</label>
+          <label for="sabbathFilter">Daty Sabata</label>
           <select id="sabbathFilter">
-            <option value="ALL">All Sabbaths</option>
+            <option value="ALL">Sabata Rehetra</option>
           </select>
         </div>
 
         <div>
-          <label for="memberSearch">Find My Responsibilities</label>
-          <input id="memberSearch" type="text" placeholder="Type name (e.g., Fenosoa, Misedra)..." />
+          <label for="memberSearch">Hitady ny Andraikitro</label>
+          <input id="memberSearch" type="text" placeholder="Soraty ny anarana (ohatra: Fenosoa, Misedra)..." />
         </div>
 
         <div>
-          <label for="viewMode">Display Style</label>
+          <label for="viewMode">Fomba Fiseho</label>
           <select id="viewMode">
-            <option value="continuous-4">Continuous (4 Sabbaths / Row)</option>
-            <option value="split-matrix">Multi-Month Tables</option>
-            <option value="one-month">One-Month Tables</option>
-            <option value="all-dates-table">All Dates Table (Oldest &rarr; Newest)</option>
-            <option value="cards">Sabbath Cards</option>
+            <option value="continuous-4">Mitohy (Sabata 4 / Laharana)</option>
+            <option value="split-matrix">Tabilao Isam-bolana</option>
+            <option value="one-month">Tabilao Volana Iray</option>
+            <option value="all-dates-table">Tabilao Daty Rehetra (Taloha &rarr; Vaovao)</option>
+            <option value="cards">Karatra Isan-tsabata</option>
           </select>
         </div>
 
         <div>
-          <label for="taskDisplayMode">Task Names</label>
+          <label for="taskDisplayMode">Anaran'ny Asa</label>
           <select id="taskDisplayMode">
-            <option value="code-tooltip">Short Code + Hover Tooltip</option>
-            <option value="code-and-desc">Code + Description</option>
-            <option value="desc-only">Full Description</option>
+            <option value="code-tooltip">Fanafohezana + Fanazavana (Hover)</option>
+            <option value="code-and-desc">Fanafohezana + Fanazavana</option>
+            <option value="desc-only">Fanazavana Feno</option>
           </select>
         </div>
       </div>
 
       <div id="personalBox" class="personal-box">
-        <h3 id="personalTitle">Your Responsibilities</h3>
+        <h3 id="personalTitle">Ny Andraikitrao</h3>
         <div id="personalDuties" class="duty-list"></div>
       </div>
     </section>
@@ -512,7 +512,7 @@
     <section class="card">
       <div id="scheduleContainer"></div>
       <div class="footer-meta">
-        <span id="statusBar">Sample schedule loaded (edit DEFAULT_CSV_URL or open Admin Source to bind live CSV).</span>
+        <span id="statusBar">Manomana ny fandaharam-potoana...</span>
       </div>
 
     </section>
@@ -724,18 +724,18 @@
 30/01/2027,SST,R. Estelle`;
 
     const MONTH_NAMES = {
-      "12": "December",
-      "01": "January",
-      "02": "February",
-      "03": "March",
-      "04": "April",
-      "05": "May",
-      "06": "June",
-      "07": "July",
-      "08": "August",
-      "09": "September",
-      "10": "October",
-      "11": "November",
+      "01": "Janoary",
+      "02": "Febroary",
+      "03": "Martsa",
+      "04": "Aprily",
+      "05": "Mey",
+      "06": "Jona",
+      "07": "Jolay",
+      "08": "Aogositra",
+      "09": "Septambra",
+      "10": "Oktobra",
+      "11": "Novambra",
+      "12": "Desambra",
     };
 
     let allRows = [];
@@ -813,17 +813,17 @@
       });
       const allLabel =
         rangeLabels.length > 1
-          ? `All Listed Months (${rangeLabels[0]}–${rangeLabels[rangeLabels.length - 1]})`
+          ? `Volana Rehetra (${rangeLabels[0]}–${rangeLabels[rangeLabels.length - 1]})`
           : rangeLabels.length === 1
-          ? `All Listed Months (${rangeLabels[0]})`
-          : "All Listed Months";
+          ? `Volana Rehetra (${rangeLabels[0]})`
+          : "Volana Rehetra";
 
       select.innerHTML = `<option value="ALL">${allLabel}</option>`;
       for (const item of uniqueMonths) {
         const opt = document.createElement("option");
         opt.value = item.month;
         const mName = MONTH_NAMES[item.month] || item.month;
-        opt.textContent = `${mName} ${item.year} Only`;
+        opt.textContent = `${mName} ${item.year} ihany`;
         select.appendChild(opt);
       }
 
@@ -847,7 +847,7 @@
         ).entries()
       ).sort((a, b) => (a[1] && b[1] ? a[1] - b[1] : 0));
 
-      select.innerHTML = `<option value="ALL">All Sabbaths</option>`;
+      select.innerHTML = `<option value="ALL">Sabata Rehetra</option>`;
       for (const [dStr] of uniqueDates) {
         const opt = document.createElement("option");
         opt.value = dStr;
@@ -874,10 +874,10 @@
         r.AssignedMember.toLowerCase().includes(q)
       );
       box.classList.add("visible");
-      title.textContent = `Responsibilities matching "${query.trim()}" (${matches.length})`;
+      title.textContent = `Andraikitra mifanaraka amin'ny "${query.trim()}" (${matches.length})`;
 
       if (matches.length === 0) {
-        list.innerHTML = `<div class="duty-item">No assignments found for this filter.</div>`;
+        list.innerHTML = `<div class="duty-item">Tsy misy andraikitra hita araka ity sivana ity.</div>`;
         return;
       }
 
@@ -923,7 +923,7 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th class="task-col">Task</th>${thCols}</tr>
+              <tr><th class="task-col">Asa</th>${thCols}</tr>
             </thead>
             <tbody>${bodyRows}</tbody>
           </table>
@@ -1024,13 +1024,13 @@
           return `
             <div class="month-section">
               <div class="month-heading">
-                <span>Part ${idx + 1}: ${spanLabel}</span>
-                <span class="month-pill">${dateGroup.length} Sabbath${dateGroup.length > 1 ? "es" : ""}</span>
+                <span>Fizarana ${idx + 1}: ${spanLabel}</span>
+                <span class="month-pill">${dateGroup.length} Sabata</span>
               </div>
               <div class="table-wrap">
                 <table>
                   <thead>
-                    <tr><th class="task-col">Task</th>${thCols}</tr>
+                    <tr><th class="task-col">Asa</th>${thCols}</tr>
                   </thead>
                   <tbody>${bodyRows}</tbody>
                 </table>
@@ -1045,7 +1045,7 @@
         .join(" &bull; ");
 
       const legendHtml = legendItems
-        ? `<div class="task-legend"><strong>Task Guide:</strong> ${legendItems}</div>`
+        ? `<div class="task-legend"><strong>Fanazavana ny Asa:</strong> ${legendItems}</div>`
         : "";
 
       return `<div class="chunk-grid">${chunksHtml}</div>${legendHtml}`;
@@ -1068,7 +1068,7 @@
       const container = document.getElementById("scheduleContainer");
 
       if (filtered.length === 0) {
-        container.innerHTML = `<p style="color: var(--muted);">No schedule records match the selected filters.</p>`;
+        container.innerHTML = `<p style="color: var(--muted);">Tsy misy fandaharam-potoana mifanaraka amin'ny sivana voafidy.</p>`;
         return;
       }
 
@@ -1092,8 +1092,8 @@
         container.innerHTML = `
           <div class="month-section">
             <div class="month-heading">
-              <span>All Listed Schedules (${rangeText})</span>
-              <span class="month-pill">${allDatesCount} Sabbaths</span>
+              <span>Fandaharam-potoana Rehetra (${rangeText})</span>
+              <span class="month-pill">${allDatesCount} Sabata</span>
             </div>
             ${buildMonthMatrix(filtered, memberQuery)}
           </div>`;
@@ -1166,7 +1166,7 @@
             <div class="month-section">
               <div class="month-heading">
                 <span>${mLabel}${year}</span>
-                <span class="month-pill">${sabCount} Sabbaths</span>
+                <span class="month-pill">${sabCount} Sabata</span>
               </div>
               ${buildMonthMatrix(mRows, memberQuery)}
             </div>`;
@@ -1222,7 +1222,7 @@
       const url = (customUrl || DEFAULT_CSV_URL || "").trim();
       if (!url) return;
       const statusEl = document.getElementById("statusBar");
-      statusEl.textContent = "Syncing schedule...";
+      statusEl.textContent = "Mampifanaraka ny fandaharam-potoana...";
       try {
         const bustUrl = url + (url.includes("?") ? "&" : "?") + "_t=" + Date.now();
         const res = await fetch(bustUrl);
@@ -1234,9 +1234,9 @@
         populateMonthDropdown();
         populateSabbathDropdown();
         renderSchedule();
-        statusEl.textContent = `Synced ${parsed.length} rows (${new Date().toLocaleTimeString()}).`;
+        statusEl.textContent = `Voaavao ny angona: andalana ${parsed.length} (${new Date().toLocaleTimeString()}).`;
       } catch (err) {
-        statusEl.textContent = `Sync notice: ${err.message}`;
+        statusEl.textContent = `Fanamarihana fanavaozana: ${err.message}`;
       }
     }
 
